@@ -57,7 +57,7 @@ FastAPI
 PostgreSQL
 SQLAlchemy
 Alembic
-Pydantic
+Pydantic-describes what valid data looks like
 
 
 request flow:
