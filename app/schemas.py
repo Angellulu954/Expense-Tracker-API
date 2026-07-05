@@ -12,3 +12,4 @@ class Expense(BaseModel):
     title:str
     amount:float=Field(...,gt=0)
     category:Category
+    
