@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from app.schemas import Expense
+from database import ENGINE
+from models import Base
+
 app=FastAPI()
+Base.metadata.create_all(bind=ENGINE)
 
 @app.get("/")
 

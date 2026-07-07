@@ -12,3 +12,4 @@ class Expense(Base):
     created_on=Column(DateTime,
                       server_default=func.now()
                       )
+    
