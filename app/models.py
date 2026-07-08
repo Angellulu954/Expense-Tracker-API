@@ -1,6 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column,DateTime,Float,String,Integer,Enum as SQLEnum,func
-from enums import Category
+from app.enums import Category
 class Base(DeclarativeBase):
     pass
 class Expense(Base):
