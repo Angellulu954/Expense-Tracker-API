@@ -1,15 +1,15 @@
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column,DateTime,Float,String,Integer,Enum as SQLEnum,func
+from sqlalchemy.orm import DeclarativeBase,Mapped,mapped_column
+from sqlalchemy import Enum as SQLEnum,func
 from app.enums import Category
+from datetime import datetime
 class Base(DeclarativeBase):
     pass
 class Expense(Base):
     __tablename__="expenses"
-    id=Column(Integer,primary_key=True,autoincrement=True)
-    title=Column(String)
-    amount=Column(Float)
-    category=Column(SQLEnum(Category))
-    created_on=Column(DateTime,
-                      server_default=func.now()
-                      )
+    id:Mapped[int]=mapped_column(primary_key=True,autoincrement=True)
+    title:Mapped[str]
+    amount:Mapped[float]
+    category:Mapped[Category]=mapped_column(SQLEnum(Category))
+    created_on:Mapped[datetime]=mapped_column(server_default=func.now())
+    
     

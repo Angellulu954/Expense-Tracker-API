@@ -1,8 +1,9 @@
-from fastapi import FastAPI
-from app.schemas import Expense as ExpenseSchema
-from app.database import ENGINE,SessionLocal
+from fastapi import FastAPI,Depends
+from app.schemas import ExpenseCreate,ExpenseResponse
+from app.database import ENGINE,SessionLocal,get_db
 from app.models import Base
-from app.models import Expense as ExpenseModel
+from app.models import Expense 
+from sqlalchemy.orm import Session
 
 app=FastAPI()
 
@@ -13,24 +14,23 @@ Base.metadata.create_all(bind=ENGINE)
 def home():
     return {"message":"Hello engineer",
             "running":True}
-@app.post("/expenses")
+@app.post("/expenses", response_model=ExpenseResponse)
 
-async def CreateExpense(expense:ExpenseSchema):
-    db=None
-    try:
-        db=SessionLocal()
-        db_expense=ExpenseModel(
-        title=expense.title,
-        category=expense.category,
-        amount=expense.amount
+async def CreateExpense(expense:ExpenseCreate, db:Session=Depends(get_db)):
+    
+    
+    
+    db_expense=Expense(
+    title=expense.title,
+    category=expense.category,
+    amount=expense.amount
         
     )
-        db.add(db_expense)
-        db.commit()
-    finally:
-        if db is not None:
-
-            db.close()
+    db.add(db_expense)
+    db.commit()
+    db.refresh(db_expense)
+    
+    
         
-    return expense
+    return db_expense
 
