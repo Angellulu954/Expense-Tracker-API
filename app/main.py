@@ -1,10 +1,10 @@
-from fastapi import FastAPI,Depends
+from fastapi import FastAPI,Depends,HTTPException
 from app.schemas import ExpenseCreate,ExpenseResponse
-from app.database import ENGINE,SessionLocal,get_db
+from app.database import ENGINE,get_db
 from app.models import Base
 from app.models import Expense 
-from sqlalchemy.orm import Session
-
+from sqlalchemy.orm import Session 
+from sqlalchemy import Select
 app=FastAPI()
 
 Base.metadata.create_all(bind=ENGINE)
@@ -34,3 +34,16 @@ async def CreateExpense(expense:ExpenseCreate, db:Session=Depends(get_db)):
         
     return db_expense
 
+@app.get("/expenses", response_model=list[ExpenseResponse])
+async def get_expenses(db:Session=Depends(get_db)):
+    stmt=Select(Expense)
+    expenses=db.scalars(stmt).all()
+    
+    return expenses
+
+@app.get("/expenses/{expense_id}",response_model=ExpenseResponse)
+async def get_expense_by_id( expense_id:int, db:Session=Depends(get_db)):
+    value=db.get(Expense,expense_id)
+    if value is None:
+        raise HTTPException(status_code=404,detail="Expense not Found")
+    return value
