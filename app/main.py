@@ -47,3 +47,17 @@ async def get_expense_by_id( expense_id:int, db:Session=Depends(get_db)):
     if value is None:
         raise HTTPException(status_code=404,detail="Expense not Found")
     return value
+@app.put("/expense/{expense_id},response_model=ExpenseResponse")
+async def update_expense(expense_id:int,expense:ExpenseCreate,db:Session=Depends(get_db)):
+    found=db.get(Expense,expense_id)
+    if found==None:
+        raise HTTPException(status_code=404,detail="Expense with that Id doesnt not exist")
+    
+    found.title=expense.title
+    found.amount=expense.amount
+    found.category=expense.category
+    
+    
+    db.commit()
+    db.refresh(found)
+    return found
