@@ -50,8 +50,8 @@ async def get_expense_by_id( expense_id:int, db:Session=Depends(get_db)):
 @app.put("/expense/{expense_id},response_model=ExpenseResponse")
 async def update_expense(expense_id:int,expense:ExpenseCreate,db:Session=Depends(get_db)):
     found=db.get(Expense,expense_id)
-    if found==None:
-        raise HTTPException(status_code=404,detail="Expense with that Id doesnt not exist")
+    if found is None:
+        raise HTTPException(status_code=404,detail="Expense with that Id doesn't not exist")
     
     found.title=expense.title
     found.amount=expense.amount
@@ -60,4 +60,16 @@ async def update_expense(expense_id:int,expense:ExpenseCreate,db:Session=Depends
     
     db.commit()
     db.refresh(found)
+    return found
+
+
+@app.delete("/expense/{expense_id}")
+async def delete_item_by_id(expense_id:int,db:Session=Depends(get_db)):
+    found=db.get(Expense,expense_id)
+    if found is None:
+        raise HTTPException(status_code=404, detail="Expense with id doesn't exit")
+    db.delete(found)
+    db.commit()
+    
+    
     return found
