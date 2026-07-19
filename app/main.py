@@ -4,7 +4,8 @@ from app.database import ENGINE,get_db
 from app.models import Base
 from app.models import Expense 
 from sqlalchemy.orm import Session 
-from sqlalchemy import Select
+from sqlalchemy import select
+from app.enums import Category
 app=FastAPI()
 
 Base.metadata.create_all(bind=ENGINE)
@@ -36,7 +37,7 @@ async def CreateExpense(expense:ExpenseCreate, db:Session=Depends(get_db)):
 
 @app.get("/expenses", response_model=list[ExpenseResponse])
 async def get_expenses(db:Session=Depends(get_db)):
-    stmt=Select(Expense)
+    stmt=select(Expense)
     expenses=db.scalars(stmt).all()
     
     return expenses
@@ -73,7 +74,22 @@ async def delete_item_by_id(expense_id:int,db:Session=Depends(get_db)):
     
     
     return found
-@app.get("/expense")
-async def query_item(category:str |None=None , db:Session=Depends(get_db)):
-    return category
+@app.get("/expenses")
+async def query_item(limit:int=10 ,offset:int=0,category:Category |None=None , db:Session=Depends(get_db)):
+    query=select(Expense)
+    
+    if category is not None:
+        query=query.where(Expense.category==category)
+    if limit is not None:
+        query=query.limit(limit) 
+    if offset is not None:
+        query=query.offset(offset)
+    
+
+    categories=db.scalars(query).all()
+    
+    
+    
+    return categories
+
 
