@@ -5,7 +5,7 @@ from app.models import Base
 from app.models import Expense 
 from sqlalchemy.orm import Session 
 from sqlalchemy import select
-from app.enums import Category
+from app.enums import Category,Order
 app=FastAPI()
 
 Base.metadata.create_all(bind=ENGINE)
@@ -75,18 +75,36 @@ async def delete_item_by_id(expense_id:int,db:Session=Depends(get_db)):
     
     return found
 @app.get("/expenses")
-async def query_item(limit:int=Query(default=10,ge=1,le=0),offset:int=Query(default=0,ge=0),category:Category |None=None , db:Session=Depends(get_db)):
+async def query_item(sort:Order| None=None,limit:int=Query(default=10,ge=1,le=100),offset:int=Query(default=0,ge=0),category:Category |None=None , db:Session=Depends(get_db)):
     query=select(Expense)
     
     if category is not None:
         query=query.where(Expense.category==category)
     query=query.limit(limit) 
     query=query.offset(offset)
+    if sort is not None:
+        if sort==Order.AMOUNT_DESC:
+            query=query.order_by(Expense.amount.desc())
+
+        elif sort==Order.AMOUNT_ASC:
+            query=query.order_by(Expense.amount.asc())
+        elif sort==Order.CATEGORY_ASC:
+            query=query.order_by(Expense.category.asc())
+        elif sort==Order.CATEGORY_DESC:
+            query=query.order_by(Expense.category.desc())
+        elif sort==Order.DATE_NEWEST:
+            query=query.order_by(Expense.created_on.desc())
+        elif sort==Order.DATE_OLDEST:
+            query=query.order_by(Expense.created_on.asc())
+        
+        elif sort==Order.TITLE_ASC:
+            query=query.order_by(Expense.title.asc())
+        elif sort==Order.TITLE_DESC:
+            query=query.order_by(Expense.title.desc())
     
     categories=db.scalars(query).all()
      
     return categories
-
 
 
 
