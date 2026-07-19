@@ -73,3 +73,7 @@ async def delete_item_by_id(expense_id:int,db:Session=Depends(get_db)):
     
     
     return found
+@app.get("/expense")
+async def query_item(category:str |None=None , db:Session=Depends(get_db)):
+    return category
+
