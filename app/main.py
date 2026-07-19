@@ -80,8 +80,7 @@ async def query_item(sort:Order| None=None,limit:int=Query(default=10,ge=1,le=10
     
     if category is not None:
         query=query.where(Expense.category==category)
-    query=query.limit(limit) 
-    query=query.offset(offset)
+    
     if sort is not None:
         if sort==Order.AMOUNT_DESC:
             query=query.order_by(Expense.amount.desc())
@@ -101,6 +100,8 @@ async def query_item(sort:Order| None=None,limit:int=Query(default=10,ge=1,le=10
             query=query.order_by(Expense.title.asc())
         elif sort==Order.TITLE_DESC:
             query=query.order_by(Expense.title.desc())
+    query=query.limit(limit) 
+    query=query.offset(offset)
     
     categories=db.scalars(query).all()
      
