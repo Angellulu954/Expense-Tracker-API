@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Depends,HTTPException
+from fastapi import FastAPI,Depends,HTTPException,Query
 from app.schemas import ExpenseCreate,ExpenseResponse
 from app.database import ENGINE,get_db
 from app.models import Base
@@ -75,21 +75,19 @@ async def delete_item_by_id(expense_id:int,db:Session=Depends(get_db)):
     
     return found
 @app.get("/expenses")
-async def query_item(limit:int=10 ,offset:int=0,category:Category |None=None , db:Session=Depends(get_db)):
+async def query_item(limit:int=Query(default=10,ge=1,le=0),offset:int=Query(default=0,ge=0),category:Category |None=None , db:Session=Depends(get_db)):
     query=select(Expense)
     
     if category is not None:
         query=query.where(Expense.category==category)
-    if limit is not None:
-        query=query.limit(limit) 
-    if offset is not None:
-        query=query.offset(offset)
+    query=query.limit(limit) 
+    query=query.offset(offset)
     
-
     categories=db.scalars(query).all()
-    
-    
-    
+     
     return categories
+
+
+
 
 
